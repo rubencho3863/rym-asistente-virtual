@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#132d4a">
+  <meta name="description" content="Catálogo de R y M Multirrubro. Condimentos, espejos por encargo y artículos para el hogar. Consultas por WhatsApp.">
+  <title>R y M Multirrubro | Asistente Virtual</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="R y M Multirrubro, inicio">
+      <span class="brand-mark">R<span>&</span>M</span>
+      <span class="brand-copy"><strong>R y M</strong><small>MULTIRRUBRO</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a href="#catalogo">Catálogo</a>
+      <a href="#como-comprar">Cómo comprar</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <a class="button button-small button-light" href="#como-comprar">Hacer una consulta</a>
+  </header>
+
+  <main id="inicio">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot"></span> Catálogo y atención al cliente</span>
+        <h1>Encontrá lo que<br><em>estás buscando.</em></h1>
+        <p>Condimentos, espejos con y sin LED y artículos para todos los días. Mirá el catálogo y consultanos directamente.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#catalogo">Ver catálogo <span aria-hidden="true">→</span></a>
+          <a class="button button-outline" href="#como-comprar">Consultar un producto</a>
+        </div>
+        <div class="hero-note"><span class="check">✓</span> Atención personalizada: nuestro equipo confirma precio y disponibilidad.</div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-image-frame"><img src="assets/espejos-led-varios.jpg" alt="Espejos con iluminación LED de R y M" fetchpriority="high"></div>
+        <div class="hero-float"><span class="float-icon">✦</span><span><strong>R y M Multirrubro</strong><small>Variedad y atención cercana</small></span></div>
+        <div class="hero-sticker">¡Consultá<br>sin compromiso!</div>
+      </div>
+    </section>
+
+    <section class="benefits" aria-label="Información de compra">
+      <div><span class="benefit-icon">⚖</span><span><strong>Condimentos</strong><small>Por kilo o medio kilo</small></span></div>
+      <div><span class="benefit-icon">✧</span><span><strong>Espejos</strong><small>Con y sin LED · por encargo</small></span></div>
+      <div><span class="benefit-icon">▣</span><span><strong>Artículos varios</strong><small>Consultá por modelos</small></span></div>
+      <div><span class="benefit-icon">☏</span><span><strong>Atención humana</strong><small>Confirmamos cada pedido</small></span></div>
+    </section>
+
+    <section class="catalog-section" id="catalogo">
+      <div class="section-heading">
+        <div><span class="eyebrow">ELEGÍ LO QUE NECESITÁS</span><h2>Catálogo de productos</h2><p>Las fotos son ilustrativas del producto publicado. Consultá el precio y la disponibilidad actual.</p></div>
+        <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Buscar un producto..." aria-label="Buscar un producto"></div>
+      </div>
+      <div class="filters" id="filters" role="group" aria-label="Filtrar productos">
+        <button class="filter active" data-filter="todos">Todos</button>
+        <button class="filter" data-filter="condimentos">Condimentos</button>
+        <button class="filter" data-filter="espejos">Espejos</button>
+        <button class="filter" data-filter="hogar">Hogar y varios</button>
+        <button class="filter" data-filter="belleza">Belleza y cuidado</button>
+        <button class="filter" data-filter="tecnologia">Accesorios</button>
+      </div>
+      <div class="product-grid" id="product-grid" aria-live="polite"></div>
+      <div class="empty-state" id="empty-state" hidden>No encontramos productos con esa búsqueda. Probá con otra palabra o escribinos por WhatsApp.</div>
+    </section>
+
+    <section class="order-section" id="como-comprar">
+      <div class="order-intro">
+        <span class="eyebrow">FÁCIL Y DIRECTO</span>
+        <h2>¿Cómo hacer tu consulta?</h2>
+        <p>Dejanos tus datos y el producto que buscás. El equipo de R y M te responde para confirmar el precio vigente, la disponibilidad y cómo continuar.</p>
+        <div class="steps">
+          <div class="step"><span>01</span><div><strong>Elegí el producto</strong><small>Explorá el catálogo o escribí qué necesitás.</small></div></div>
+          <div class="step"><span>02</span><div><strong>Completá tus datos</strong><small>Indicá tu nombre y la cantidad que necesitás.</small></div></div>
+          <div class="step"><span>03</span><div><strong>Te atendemos por WhatsApp</strong><small>Una persona del equipo confirma los detalles.</small></div></div>
+        </div>
+      </div>
+      <form class="inquiry-card" id="inquiry-form">
+        <div class="form-title"><span class="assistant-avatar">R&M</span><div><strong>Asistente virtual de R y M</strong><small>Prepará tu consulta</small></div></div>
+        <label for="customer-name">Tu nombre</label>
+        <input id="customer-name" name="name" type="text" placeholder="¿Cómo te llamás?" autocomplete="name" required>
+        <label for="product-select">¿Qué producto buscás?</label>
+        <select id="product-select" name="product" required><option value="">Seleccioná un producto</option></select>
+        <label for="quantity">Cantidad</label>
+        <input id="quantity" name="quantity" type="text" placeholder="Ej.: 1, 2 unidades, ½ kg..." required>
+        <label for="extra">Comentario (opcional)</label>
+        <textarea id="extra" name="extra" rows="3" placeholder="Podés agregar color, modelo u otro detalle."></textarea>
+        <button class="button button-primary button-full" type="submit">Enviar consulta por WhatsApp <span aria-hidden="true">↗</span></button>
+        <p class="form-disclaimer">Tu consulta se enviará al WhatsApp de R y M. El envío no confirma una compra ni reserva stock.</p>
+      </form>
+    </section>
+
+    <section class="contact-band" id="contacto">
+      <div><span class="eyebrow">ESTAMOS PARA AYUDARTE</span><h2>¿Tenés alguna duda?</h2><p>Contactanos y nuestro equipo te va a orientar.</p></div>
+      <div class="contact-details">
+        <a class="button button-white" href="https://wa.me/5492345483089?text=Hola%2C%20quiero%20hacer%20una%20consulta%20a%20R%20y%20M%20Multirrubro." target="_blank" rel="noopener">Abrir WhatsApp <span aria-hidden="true">↗</span></a>
+        <small>Consultas y pedidos</small>
+        <strong>2344403750 · 2344403752</strong>
+        <strong>2345483089 <span>(solo WhatsApp)</span></strong>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a class="brand footer-brand" href="#inicio"><span class="brand-mark">R<span>&</span>M</span><span class="brand-copy"><strong>R y M</strong><small>MULTIRRUBRO</small></span></a>
+    <p>© <span id="year"></span> R y M Multirrubro. Todos los derechos reservados.</p>
+    <a href="#inicio">Volver arriba ↑</a>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/5492345483089?text=Hola%2C%20quiero%20hacer%20una%20consulta%20a%20R%20y%20M%20Multirrubro." target="_blank" rel="noopener" aria-label="Consultar por WhatsApp">☏</a>
+  <script src="app.js"></script>
+</body>
+</html>
