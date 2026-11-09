@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = '5492345483089';
+const WHATSAPP_NUMBER = '5492344403750';
 const products = [
   {id:'ajo',name:'Ajo en polvo',category:'condimentos',label:'Condimentos',image:'assets/ajo-en-polvo.jpg',description:'Condimento para tus preparaciones.',meta:'Por kilo o ½ kg'},
   {id:'cebolla',name:'Cebolla en escamas',category:'condimentos',label:'Condimentos',image:'assets/cebolla-en-escamas.jpg',description:'Ideal para sumar sabor a tus comidas.',meta:'Por kilo o ½ kg'},
