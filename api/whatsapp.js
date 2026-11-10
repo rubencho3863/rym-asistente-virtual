@@ -125,43 +125,41 @@ async function saveMemory(phone, memory) {
     String(MEMORY_TTL)
   ]);
 }
-
-// RECONOCIMIENTO DE NOMBRES
 function extractName(message, memory) {
   const text = String(message || "").trim();
 
-  const patterns = [
-    /\b(?:mi nombre es|me llamo|soy)\s+(.+?)(?=\s+(?:y quiero|y necesito|y busco|quiero|necesito|busco|tengo)\b|[,.;!?]|$)/i
-  ];
+  // No confundir productos con nombres.
+  if (findProducts(text).length) {
+    const explicit = text.match(
+      /\b(?:mi nombre es|me llamo|soy)\s+(.+?)(?=\s+(?:y quiero|y necesito|y busco|quiero|necesito|busco)\b|[,.;!?]|$)/i
+    );
 
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
+    if (!explicit) return "";
 
-    if (match) {
-      const name = match[1]
-        .trim()
-        .replace(/\s+/g, " ")
-        .slice(0, 60);
+    const candidate = explicit[1].trim();
 
-      if (name && /^[\p{L}\s'-]+$/u.test(name)) {
-        return name;
-      }
-    }
+    return /^[\p{L}\s'-]+$/u.test(candidate)
+      ? candidate.slice(0, 60)
+      : "";
   }
 
-  // Si el bot estaba esperando el nombre,
-  // acepta una respuesta breve como "Juan Pérez".
+  const match = text.match(
+    /\b(?:mi nombre es|me llamo|soy)\s+([A-Za-zÁÉÍÓÚÑáéíóúñ\s'-]{2,60})/i
+  );
+
+  if (match) {
+    return match[1].trim().slice(0, 60);
+  }
+
+  // Aceptar nombre cuando el bot lo está solicitando.
   if (
     !memory.name &&
     memory.items.length &&
     /^[\p{L}][\p{L}\s'-]{1,58}$/u.test(text) &&
-    text.trim().split(/\s+/).length <= 4
+    text.split(/\s+/).length <= 4 &&
+    !findProducts(text).length
   ) {
-    const normalized = normalize(text);
-
-    if (!/^(hola|buenas|gracias|ok|dale|perfecto)$/.test(normalized)) {
-      return text.trim();
-    }
+    return text;
   }
 
   return "";
