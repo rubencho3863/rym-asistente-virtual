@@ -11,10 +11,10 @@ const PRODUCTS = [
   { name: "Orégano", words: ["oregano"] },
   { name: "Adobo para pizza", words: ["adobo para pizza", "adobo pizza"] },
   { name: "Pimentón y chimichurri", words: ["pimenton", "chimichurri"] },
-  { name: "Espejos con y sin LED", words: ["espejo led", "espejo", "espejos"] },
+  { name: "Espejos con y sin LED", words: ["espejo led", "espejos led", "espejo", "espejos"] },
   { name: "Mini aire portátil", words: ["mini aire portatil", "mini aire"] },
   { name: "Mini aire para auto", words: ["mini aire para auto", "aire para auto"] },
-  { name: "Ventilador de pie 18 pulgadas", words: ["ventilador de pie", "ventilador"] },
+  { name: "Ventilador de pie 18 pulgadas", words: ["ventilador de pie", "ventiladores", "ventilador"] },
   { name: "Cortador y rallador de verduras", words: ["cortador", "rallador"] },
   { name: "Mini masajeador", words: ["masajeador"] },
   { name: "Cepillo para mascotas", words: ["cepillo mascotas", "cepillo para mascotas"] },
@@ -35,24 +35,7 @@ function normalize(value) {
     .trim();
 }
 
-function findProduct(message) {
-  const text = normalize(message);
-
-  const matches = PRODUCTS.flatMap(product =>
-    product.words.map(word => ({
-      product,
-      word: normalize(word)
-    }))
-  ).sort((a, b) => b.word.length - a.word.length);
-
-  const found = matches.find(item =>
-    text.includes(item.word)
-  );
-
-  return found ? found.product : null;
-}
-
-// CONEXION UPSTASH REDIS
+// UPSTASH REDIS
 async function redisCommand(command) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -61,34 +44,31 @@ async function redisCommand(command) {
     throw new Error("Faltan variables Redis en Vercel");
   }
 
-  const response = await fetch(
-    url.replace(/\/+$/, ""),
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(command)
-    }
-  );
+  const response = await fetch(url.replace(/\/+$/, ""), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(command)
+  });
 
   const data = await response.json();
 
   if (!response.ok || data.error) {
-    throw new Error("Error Redis: " + JSON.stringify(data));
+    throw new Error("Redis: " + JSON.stringify(data));
   }
 
   return data.result;
 }
 
 // CONTROL DE MENSAJES DUPLICADOS
-async function claimMessage(messageId) {
-  if (!messageId) return true;
+async function claimMessage(id) {
+  if (!id) return true;
 
   const result = await redisCommand([
     "SET",
-    `rym:processed:${messageId}`,
+    `rym:processed:${id}`,
     "1",
     "EX",
     String(DUPLICATE_TTL),
@@ -98,21 +78,17 @@ async function claimMessage(messageId) {
   return result === "OK";
 }
 
-async function releaseMessage(messageId) {
-  if (!messageId) return;
+async function releaseMessage(id) {
+  if (!id) return;
 
-  await redisCommand([
-    "DEL",
-    `rym:processed:${messageId}`
-  ]);
+  await redisCommand(["DEL", `rym:processed:${id}`]);
 }
 
-// MEMORIA INDIVIDUAL DEL CLIENTE
+// MEMORIA INDIVIDUAL
 function emptyMemory() {
   return {
     name: "",
-    product: "",
-    quantity: "",
+    items: [],
     updatedAt: null
   };
 }
@@ -126,9 +102,12 @@ async function getMemory(phone) {
   if (!result) return emptyMemory();
 
   try {
+    const saved = JSON.parse(result);
+
     return {
       ...emptyMemory(),
-      ...JSON.parse(result)
+      ...saved,
+      items: Array.isArray(saved.items) ? saved.items : []
     };
   } catch {
     return emptyMemory();
@@ -147,117 +126,230 @@ async function saveMemory(phone, memory) {
   ]);
 }
 
-// IDENTIFICAR NOMBRE
-function extractName(message) {
-  const match = String(message).match(
-    /\b(?:soy|me llamo|mi nombre es)\s+([A-Za-zÁÉÍÓÚÑáéíóúñ]+)/i
-  );
-
-  return match ? match[1] : "";
-}
-
-// IDENTIFICAR CANTIDAD
-function extractQuantity(message, memory) {
-  const text = normalize(message);
+// RECONOCIMIENTO DE NOMBRES
+function extractName(message, memory) {
+  const text = String(message || "").trim();
 
   const patterns = [
-    /\bcantidad\s*[:\-]?\s*(\d{1,4})\b/,
-    /\b(?:necesito|quiero|son|llevo|serian|seran)\s+(\d{1,4})\b/,
-    /\b(\d{1,4})\s*(?:unidades?|ventiladores|espejos|auriculares|productos)\b/
+    /\b(?:mi nombre es|me llamo|soy)\s+(.+?)(?=\s+(?:y quiero|y necesito|y busco|quiero|necesito|busco|tengo)\b|[,.;!?]|$)/i
   ];
 
   for (const pattern of patterns) {
     const match = text.match(pattern);
-    if (match) return match[1];
+
+    if (match) {
+      const name = match[1]
+        .trim()
+        .replace(/\s+/g, " ")
+        .slice(0, 60);
+
+      if (name && /^[\p{L}\s'-]+$/u.test(name)) {
+        return name;
+      }
+    }
   }
 
-  // Aceptar un numero solo cuando se esta
-  // completando una consulta que ya tiene producto.
+  // Si el bot estaba esperando el nombre,
+  // acepta una respuesta breve como "Juan Pérez".
   if (
-    memory.product &&
-    !memory.quantity &&
-    /^\d{1,4}$/.test(text)
+    !memory.name &&
+    memory.items.length &&
+    /^[\p{L}][\p{L}\s'-]{1,58}$/u.test(text) &&
+    text.trim().split(/\s+/).length <= 4
   ) {
-    return text;
+    const normalized = normalize(text);
+
+    if (!/^(hola|buenas|gracias|ok|dale|perfecto)$/.test(normalized)) {
+      return text.trim();
+    }
   }
 
   return "";
 }
 
-// ACTUALIZAR MEMORIA
-function updateMemory(incoming, memory) {
-  const product = findProduct(incoming);
-  const name = extractName(incoming);
+// DETECTAR PRODUCTOS MENCIONADOS
+function findProducts(message) {
+  const text = normalize(message);
+  const matches = [];
 
-  // Un producto diferente inicia una nueva consulta.
-  if (product && product.name !== memory.product) {
-    memory.product = product.name;
-    memory.quantity = "";
+  for (const product of PRODUCTS) {
+    for (const word of product.words) {
+      const alias = normalize(word);
+      let position = text.indexOf(alias);
+
+      while (position !== -1) {
+        matches.push({
+          product,
+          start: position,
+          end: position + alias.length
+        });
+
+        position = text.indexOf(alias, position + 1);
+      }
+    }
   }
 
-  if (name) {
-    memory.name = name;
+  matches.sort((a, b) =>
+    a.start - b.start ||
+    (b.end - b.start) - (a.end - a.start)
+  );
+
+  const selected = [];
+
+  for (const match of matches) {
+    const overlaps = selected.some(item =>
+      match.start < item.end && match.end > item.start
+    );
+
+    if (!overlaps) selected.push(match);
   }
 
-  const quantity = extractQuantity(incoming, memory);
+  return selected;
+}
 
-  if (quantity) {
-    memory.quantity = quantity;
+// CANTIDAD ANTES DEL PRODUCTO
+function quantityBefore(text, position) {
+  const before = text.slice(0, position);
+  const match = before.match(/(?:^|\s)(\d{1,4})\s*(?:de\s*)?$/);
+
+  return match ? match[1] : "";
+}
+
+function extractStandaloneQuantity(message, memory) {
+  const text = normalize(message);
+
+  if (/^\d{1,4}$/.test(text)) {
+    const pending = memory.items.filter(item => !item.quantity);
+
+    if (pending.length === 1) {
+      return {
+        product: pending[0],
+        quantity: text
+      };
+    }
+  }
+
+  return null;
+}
+
+// ACTUALIZAR PEDIDO
+function updateMemory(message, memory) {
+  const text = normalize(message);
+
+  // Iniciar un pedido nuevo sin borrar el nombre.
+  if (/^(nuevo pedido|nueva consulta|otro pedido|empezar de nuevo)$/.test(text)) {
+    memory.items = [];
+    return memory;
+  }
+
+  const newName = extractName(message, memory);
+
+  if (newName) {
+    memory.name = newName;
+  }
+
+  const matches = findProducts(message);
+
+  if (matches.length) {
+    for (const match of matches) {
+      const quantity = quantityBefore(text, match.start);
+
+      let item = memory.items.find(
+        entry => entry.product === match.product.name
+      );
+
+      if (!item) {
+        item = {
+          product: match.product.name,
+          quantity: ""
+        };
+
+        memory.items.push(item);
+      }
+
+      if (quantity) {
+        item.quantity = quantity;
+      }
+    }
+  } else {
+    const standalone = extractStandaloneQuantity(message, memory);
+
+    if (standalone) {
+      standalone.product.quantity = standalone.quantity;
+    } else {
+      // Cantidad en mensajes como "quiero 3",
+      // cuando existe un único producto pendiente.
+      const general = text.match(
+        /\b(?:quiero|necesito|son|llevo|cantidad)\s+(\d{1,4})\b/
+      );
+
+      const pending = memory.items.filter(item => !item.quantity);
+
+      if (general && pending.length === 1) {
+        pending[0].quantity = general[1];
+      }
+    }
   }
 
   return memory;
 }
 
-// RESPUESTAS AUTOMATICAS
+// GENERAR RESPUESTA
 function getReply(message, memory) {
   const text = normalize(message);
 
   if (!text) {
-    return "¡Hola! 👋 Somos R y M Multirrubro. Contanos qué producto estás buscando y te ayudamos.";
+    return "¡Hola! 👋 Somos R y M Multirrubro. Contanos qué producto estás buscando.";
   }
 
-  if (
-    /^(hola|buenas|buen dia|buenos dias|buenas tardes|buenas noches|menu|catalogo)$/.test(text)
-  ) {
-    return "¡Hola! 👋 ¡Bienvenido a R y M Multirrubro! 🛍️\n\nContanos qué producto te interesa. Para gestionar tu consulta necesitamos tu nombre, producto y cantidad.\n\nNuestro equipo humano confirmará el precio vigente y la disponibilidad. 😊";
-  }
+  if (/^(hola|buenas|buen dia|buenos dias|buenas tardes|buenas noches|menu|catalogo)$/.test(text)) {
+    if (memory.items.length) {
+      return `¡Hola${memory.name ? ", " + memory.name : ""}! 😊 ¿Seguimos con tu consulta anterior o querés iniciar un pedido nuevo?`;
+    }
 
-  if (/^(nuevo pedido|nueva consulta)$/.test(text)) {
-    memory.product = "";
-    memory.quantity = "";
-
-    return "¡Perfecto! 🛍️ Comenzamos una nueva consulta. Contanos qué producto necesitás y qué cantidad.";
+    return "¡Hola! 👋 ¡Bienvenido a R y M Multirrubro! 🛍️\n\nContanos qué productos necesitás. Para ayudarte necesitamos tu nombre y las cantidades.";
   }
 
   if (/^(gracias|muchas gracias|ok|dale|perfecto)$/.test(text)) {
-    return "¡Muchas gracias por comunicarte con R y M! 😊 Estamos a disposición para ayudarte. ¡Que tengas un excelente día! 💙";
+    return "¡Muchas gracias por comunicarte con R y M! 💙 Estamos a disposición para ayudarte.";
   }
 
-  if (memory.product) {
-    const missing = [];
-
-    if (!memory.name) missing.push("tu nombre");
-    if (!memory.quantity) missing.push("la cantidad que necesitás");
-
-    if (missing.length) {
-      return `¡Gracias por consultar por ${memory.product}! 😊\n\nPara completar tu consulta, indicame ${missing.join(" y ")}.\n\nNuestro equipo humano confirmará el precio vigente y la disponibilidad.`;
-    }
-
-    return `¡Perfecto, ${memory.name}! 😊\n\nRegistramos los datos de tu consulta:\n\n• Producto: ${memory.product}\n• Cantidad: ${memory.quantity}\n\nNuestro equipo humano confirmará el precio vigente, las características y la disponibilidad antes de concretar el pedido. 🛍️`;
+  if (/precio|cuanto|cuesta|sale|valor|stock|disponible|disponibilidad/.test(text) && !memory.items.length) {
+    return "¡Con gusto te ayudamos! 😊 ¿Por qué producto querés consultar? Nuestro equipo confirmará el precio y la disponibilidad.";
   }
 
-  if (/precio|cuanto|cuesta|sale|valor|stock|disponible|disponibilidad/.test(text)) {
-    return "¡Con gusto te ayudamos! 😊 ¿Por qué producto querés consultar?\n\nIndicá también tu nombre y cantidad. Nuestro equipo confirmará el precio vigente y la disponibilidad.";
+  if (!memory.items.length) {
+    return "¡Gracias por comunicarte con R y M Multirrubro! 😊\n\nContanos qué producto estás buscando y qué cantidad necesitás. Si podés, indicá también tu nombre.";
   }
 
-  if (/pedido|comprar|encargar|reservar/.test(text)) {
-    return "¡Perfecto! 🛍️ Para gestionar tu pedido necesitamos:\n\n• Nombre\n• Producto\n• Cantidad\n\nNuestro equipo humano confirmará precio y disponibilidad por este mismo WhatsApp.";
+  const missing = [];
+
+  if (!memory.name) {
+    missing.push("tu nombre y apellido");
   }
 
-  return "¡Gracias por comunicarte con R y M Multirrubro! 😊\n\nContanos qué producto estás buscando y qué cantidad necesitás.\n\nSi podés, indicá también tu nombre para que nuestro equipo pueda atenderte.\n\n¡Te confirmaremos precio y disponibilidad por este mismo WhatsApp! 💙";
+  const incomplete = memory.items.filter(item => !item.quantity);
+
+  for (const item of incomplete) {
+    missing.push(`la cantidad de ${item.product}`);
+  }
+
+  if (missing.length) {
+    const list = memory.items.map(item =>
+      `• ${item.product}: ${item.quantity || "cantidad pendiente"}`
+    ).join("\n");
+
+    return `¡Gracias por tu consulta! 😊\n\n${list}\n\nPara completar los datos necesitamos ${missing.join(" y ")}.`;
+  }
+
+  const list = memory.items.map(item =>
+    `• ${item.quantity} x ${item.product}`
+  ).join("\n");
+
+  return `¡Perfecto${memory.name ? ", " + memory.name : ""}! 😊\n\nRegistramos tu consulta:\n\n${list}\n\nNuestro equipo humano confirmará los precios vigentes, características y disponibilidad antes de concretar el pedido. 🛍️`;
 }
 
-// ENVIO WHATSAPP
+// ENVIAR WHATSAPP
 async function sendMessage(to, message) {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -332,21 +424,17 @@ module.exports = async (req, res) => {
         try {
           claimed = await claimMessage(message.id);
 
-          if (!claimed) {
-            console.log("Mensaje duplicado ignorado");
-            continue;
-          }
+          if (!claimed) continue;
 
           if (message.type !== "text") {
             await sendMessage(
               message.from,
-              "¡Gracias por tu mensaje! 😊 Por el momento podemos procesar consultas escritas. Contanos qué producto necesitás."
+              "¡Gracias por tu mensaje! 😊 Por el momento podemos procesar consultas escritas. Contanos qué productos necesitás."
             );
             continue;
           }
 
           const incoming = message.text?.body || "";
-
           const memory = await getMemory(message.from);
 
           updateMemory(incoming, memory);
@@ -354,14 +442,14 @@ module.exports = async (req, res) => {
           const reply = getReply(incoming, memory);
 
           await saveMemory(message.from, memory);
-
           await sendMessage(message.from, reply);
 
-          console.log("R y M PRO - Mensaje procesado:", {
+          console.log("R y M PRO V3:", {
             messageId: message.id,
-            product: memory.product || "Pendiente",
+            customer: message.from,
             hasName: Boolean(memory.name),
-            hasQuantity: Boolean(memory.quantity),
+            products: memory.items.length,
+            complete: memory.items.every(item => item.quantity),
             memoryDays: 7
           });
 
@@ -388,4 +476,3 @@ module.exports = async (req, res) => {
 
   return res.status(405).send("Method not allowed");
 };
-
