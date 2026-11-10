@@ -205,10 +205,14 @@ function findProducts(message) {
   return selected;
 }
 
+
 // CANTIDAD ANTES DEL PRODUCTO
 function quantityBefore(text, position) {
   const before = text.slice(0, position);
-  const match = before.match(/(?:^|\s)(\d{1,4})\s*(?:de\s*)?$/);
+
+  const match = before.match(
+    /(?:^|\s)(\d{1,4})(?:\s*(?:unidades?|u))?(?:\s+de)?\s*$/
+  );
 
   return match ? match[1] : "";
 }
