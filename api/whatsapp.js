@@ -134,7 +134,7 @@ function extractName(message, memory) {
       /\b(?:mi nombre es|me llamo|soy)\s+(.+?)(?=\s+(?:y quiero|y necesito|y busco|quiero|necesito|busco)\b|[,.;!?]|$)/i
     );
 
-    if (!explicit) return "";
+    if (!explicit || findProducts(explicit[1]).length) return "";
 
     const candidate = explicit[1].trim();
 
