@@ -419,7 +419,17 @@ module.exports = async (req, res) => {
       const messages = entries
         .flatMap(entry => entry.changes || [])
         .flatMap(change => change.value?.messages || []);
-
+console.log("[WEBHOOK DEBUG]", {
+  method: req.method,
+  bodyKeys: Object.keys(req.body || {}),
+  entryCount: entries.length,
+  messageCount: messages.length,
+  messages: messages.map(m => ({
+    type: m.type,
+    hasFrom: !!m.from,
+    hasId: !!m.id,
+    hasText: !!m.text?.body
+  
       for (const message of messages) {
         if (!message.from) continue;
 
