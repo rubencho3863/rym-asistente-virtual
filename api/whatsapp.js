@@ -422,7 +422,14 @@ module.exports = async (req, res) => {
 console.log("[WEBHOOK DEBUG]", {
   method: req.method,
   bodyKeys: Object.keys(req.body || {}),
-  entryCount: entries.length,
+  entryCount: entries.length,changeFields: entries.flatMap(entry =>
+  (entry.changes || []).map(change => ({
+    field: change.field,
+    valueKeys: Object.keys(change.value || {}),
+    messagesCount: change.value?.messages?.length || 0,
+    statusesCount: change.value?.statuses?.length || 0
+  }))
+),
   messageCount: messages.length,
   messages: messages.map(m => ({
     type: m.type,
