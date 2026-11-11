@@ -429,7 +429,8 @@ console.log("[WEBHOOK DEBUG]", {
     hasFrom: !!m.from,
     hasId: !!m.id,
     hasText: !!m.text?.body
-  
+    }))
+});
       for (const message of messages) {
         if (!message.from) continue;
 
