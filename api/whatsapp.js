@@ -35,7 +35,7 @@ function normalize(value) {
     .trim();
 }
 
-// UPSTASH REDIS
+// UPSTASH REDIS in
 async function redisCommand(command) {
   
 const url = process.env.UPSTASH_REDIS_REST_KV_REST_API_URL;
@@ -208,17 +208,15 @@ function findProducts(message) {
 }
 
 
-// CANTIDAD ANTES DEL PRODUCTO
-function quantityBefore(text, position) {
+// CANTIDAD ANTES DEL PRODUCTOfunction quantityBefore(text, position) {
   const before = text.slice(0, position);
 
   const match = before.match(
-    /(?:^|\s)(\d{1,4})(?:\s*(?:unidades?|u))?(?:\s+de)?\s*$/
+    /(?:^|\s)((?:\d{1,4}(?:[.,]\d+)?|\d{1,4}\s*\/\s*\d{1,4})(?:\s*(?:kg|kilos?|kilogramos?|gr|g|gramos?|unidades?|u))?)(?:\s+de)?\s*$/
   );
 
-  return match ? match[1] : "";
+  return match ? match[1].trim() : "";
 }
-
 function extractStandaloneQuantity(message, memory) {
   const text = normalize(message);
 
