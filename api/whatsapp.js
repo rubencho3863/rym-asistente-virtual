@@ -420,6 +420,7 @@ module.exports = async (req, res) => {
         .flatMap(entry => entry.changes || [])
         .flatMap(change => change.value?.messages || []);
 console.log("[WEBHOOK DEBUG]", {
+  configuredPhoneId: process.env.WHATSAPP_PHONE_NUMBER_ID || "SIN_CONFIGURAR",
   method: req.method,
   bodyKeys: Object.keys(req.body || {}),
   entryCount: entries.length,changeFields: entries.flatMap(entry =>
