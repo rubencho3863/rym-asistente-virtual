@@ -207,8 +207,8 @@ function findProducts(message) {
   return selected;
 }
 
-
-// CANTIDAD ANTES DEL PRODUCTOfunction quantityBefore(text, position) {
+// CANTIDAD ANTES DEL PRODUCTO
+function quantityBefore(text, position) {
   const before = text.slice(0, position);
 
   const match = before.match(
