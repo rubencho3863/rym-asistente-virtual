@@ -425,6 +425,7 @@ console.log("[WEBHOOK DEBUG]", {
   entryCount: entries.length,changeFields: entries.flatMap(entry =>
   (entry.changes || []).map(change => ({
     field: change.field,
+    phoneNumberId: change.value?.metadata?.phone_number_id || "SIN_ID",
     valueKeys: Object.keys(change.value || {}),
     messagesCount: change.value?.messages?.length || 0,
     statusesCount: change.value?.statuses?.length || 0
