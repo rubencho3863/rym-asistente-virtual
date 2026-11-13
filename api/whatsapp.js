@@ -1,6 +1,6 @@
 
 const API_VERSION = process.env.WHATSAPP_API_VERSION || "v27.0";
-const MEMORY_TTL = 604800;
+const MEMORY_TTL = 1800;
 const DUPLICATE_TTL = 86400;
 
 const PRODUCTS = [
