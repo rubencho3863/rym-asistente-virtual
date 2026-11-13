@@ -217,7 +217,8 @@ function quantityBefore(text, position) {
   const match = before.match(
     /(?:^|\s)((?:\d{1,4}(?:[.,]\d+)?|\d{1,4}\s*\/\s*\d{1,4})(?:\s*(?:kg|kilos?|kilogramos?|grs?|g|gramos|unidades?|u))?)(?:\s*(?:de|del|para))?\s*$/i
   );
-  return match ? match[1].trim() : "";
+  const quantity = match ? match[1].trim() : "";
+return isQuarterKilo(quantity) ? "" : quantity;
 }
 function extractStandaloneQuantity(message, memory) {
   const text = normalize(message);
