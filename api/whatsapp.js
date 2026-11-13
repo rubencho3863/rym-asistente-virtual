@@ -282,8 +282,8 @@ function updateMemory(message, memory) {
     const standalone = extractStandaloneQuantity(message, memory);
 
     if (standalone) {
-      standalone.product.quantity = standalone.quantity;
-    } else {
+  standalone.product.quantity = standalone.quantity;
+}
       // Cantidad en mensajes como "quiero 3",
       // cuando existe un único producto pendiente.
       const general = text.match(
