@@ -220,7 +220,7 @@ function quantityBefore(text, position) {
 function extractStandaloneQuantity(message, memory) {
   const text = normalize(message);
 
-  if (/^\d{1,4}$/.test(text)) {
+  if (/^(?:\d{1,4}|\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?)\s*(?:kg|g|gr|gramos?|kilos?)?$/.test(text)) {
     const pending = memory.items.filter(item => !item.quantity);
 
     if (pending.length === 1) {
