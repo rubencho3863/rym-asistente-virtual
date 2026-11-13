@@ -208,24 +208,40 @@ function findProducts(message) {
 }
 
 function isQuarterKilo(quantity) {
-  const value = normalize(quantity).replace(/\s+/g, "");
+  const value = normalize(quantity)
+    .replace(/\s+/g, "")
+    .replace(/[.!?]+$/g, "");
+
   return /^(?:1\/4|0[.,]25)(?:kg|kgs|kilo|kilos|kilogramo|kilogramos)?$/.test(value) ||
     /^250(?:g|gr|grs|gramo|gramos)$/.test(value);
 }
+
+function hasQuarterKiloRequest(message) {
+  const text = normalize(message);
+
+  return /(?:^|\s)(?:1\s*\/\s*4|0[.,]25)\s*(?:kg|kgs|kilo|kilos|kilogramo|kilogramos)?(?=$|[\s.,!?])/.test(text) ||
+    /(?:^|\s)250\s*(?:g|gr|grs|gramo|gramos)\b/.test(text) ||
+    /\b(?:un\s+)?cuarto(?:\s+de)?\s+kilos?\b/.test(text);
+}
+
 function quantityBefore(text, position) {
   const before = text.slice(0, position);
+
   const match = before.match(
     /(?:^|\s)((?:\d{1,4}(?:[.,]\d+)?|\d{1,4}\s*\/\s*\d{1,4})(?:\s*(?:kg|kilos?|kilogramos?|grs?|g|gramos|unidades?|u))?)(?:\s*(?:de|del|para))?\s*$/i
   );
+
   const quantity = match ? match[1].trim() : "";
-return isQuarterKilo(quantity) ? "" : quantity;
+
+  return isQuarterKilo(quantity) ? "" : quantity;
 }
+
 function extractStandaloneQuantity(message, memory) {
   const text = normalize(message);
 
-  
-if (/^(?:\d+(?:[.,]\d+)?|\d+\s*\/\s*\d+)\s*(?:kg|kgs|kilo|kilos|g|gr|grs|gramo|gramos)\.?$/.test(text)) {
+  if (isQuarterKilo(text)) return null;
 
+  if (/^(?:\d+(?:[.,]\d+)?|\d+\s*\/\s*\d+)\s*(?:kg|kgs|kilo|kilos|g|gr|grs|gramo|gramos)\.?$/.test(text)) {
     const pending = memory.items.filter(item => !item.quantity);
 
     if (pending.length === 1) {
