@@ -212,7 +212,7 @@ function quantityBefore(text, position) {
   const before = text.slice(0, position);
 
   const match = before.match(
-    /(?:^|\s)((?:\d{1,4}(?:[.,]\d+)?|\d{1,4}\s*\/\s*\d{1,4})(?:\s*(?:kg|kilos?|kilogramos?|gr|g|gramos?|unidades?|u))?)(?:\s+de)?\s*$/
+    /(?:^|\s)((?:\d{1,4}(?:[.,]\d+)?|\d{1,4}\s*\/\s*\d{1,4})(?:\s*(?:kg|kilos?|kilogramos?|grs?|g|gramos|unidades?|u))?)(?:\s*(?:de|del|para))?\s*$/i
   );
 
   return match ? match[1].trim() : "";
