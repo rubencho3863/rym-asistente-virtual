@@ -207,7 +207,11 @@ function findProducts(message) {
   return selected;
 }
 
-// CANTIDAD ANTES DEL PRODUCTO
+function isQuarterKilo(quantity) {
+  const value = normalize(quantity).replace(/\s+/g, "");
+  return /^(?:1\/4|0[.,]25)(?:kg|kgs|kilo|kilos|kilogramo|kilogramos)?$/.test(value) ||
+    /^250(?:g|gr|grs|gramo|gramos)$/.test(value);
+}
 function quantityBefore(text, position) {
   const before = text.slice(0, position);
   const match = before.match(
