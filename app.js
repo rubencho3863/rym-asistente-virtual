@@ -118,7 +118,11 @@ function addProductRow(selectedId = '') {
   return row;
 }
 
-addButton.addEventListener('click', () => addProductRow());
+addButton.type = 'button';
+addButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  addProductRow();
+});
 addProductRow();
 
 let activeFilter = 'todos';
