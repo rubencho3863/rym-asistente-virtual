@@ -26,51 +26,181 @@ const products = [
 const grid = document.getElementById('product-grid');
 const search = document.getElementById('search');
 const empty = document.getElementById('empty-state');
-const select = document.getElementById('product-select');
+const productLabel = document.querySelector('label[for="product-select"]');
+const oldSelect = document.getElementById('product-select');
+const oldQuantityLabel = document.querySelector('label[for="quantity"]');
+const oldQuantity = document.getElementById('quantity');
+
+const productItems = document.createElement('div');
+productItems.id = 'product-items';
+productItems.style.display = 'grid';
+productItems.style.gap = '10px';
+
+oldSelect.remove();
+oldQuantityLabel.remove();
+oldQuantity.remove();
+
+productLabel.textContent = 'Productos de interés';
+productLabel.removeAttribute('for');
+productLabel.insertAdjacentElement('afterend', productItems);
+
+const addButton = document.createElement('button');
+addButton.type = 'button';
+addButton.textContent = '+ Agregar otro producto';
+addButton.style.width = '100%';
+addButton.style.padding = '12px';
+addButton.style.marginBottom = '12px';
+addButton.style.border = '1px dashed currentColor';
+addButton.style.borderRadius = '10px';
+addButton.style.background = 'transparent';
+addButton.style.color = 'inherit';
+addButton.style.cursor = 'pointer';
+
+productItems.insertAdjacentElement('afterend', addButton);
+
+function addProductRow(selectedId = '') {
+  const row = document.createElement('div');
+  row.className = 'product-row';
+  row.style.display = 'grid';
+  row.style.gridTemplateColumns = 'minmax(0,1fr) minmax(90px,115px) 38px';
+  row.style.gap = '8px';
+  row.style.alignItems = 'center';
+
+  const productSelect = document.createElement('select');
+  productSelect.name = 'product[]';
+  productSelect.required = true;
+  productSelect.style.width = '100%';
+  productSelect.style.minWidth = '0';
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Seleccioná un producto';
+  productSelect.appendChild(placeholder);
+
+  products.forEach(p => {
+    const option = document.createElement('option');
+    option.value = p.id;
+    option.textContent = p.name;
+    productSelect.appendChild(option);
+  });
+
+  productSelect.value = selectedId;
+
+  const quantity = document.createElement('input');
+  quantity.type = 'text';
+  quantity.name = 'quantity[]';
+  quantity.placeholder = 'Cantidad';
+  quantity.required = true;
+  quantity.style.width = '100%';
+  quantity.style.minWidth = '0';
+
+  const removeButton = document.createElement('button');
+  removeButton.type = 'button';
+  removeButton.textContent = '×';
+  removeButton.title = 'Quitar producto';
+  removeButton.style.width = '38px';
+  removeButton.style.height = '42px';
+  removeButton.style.borderRadius = '8px';
+  removeButton.style.cursor = 'pointer';
+
+  row.append(productSelect, quantity, removeButton);
+  productItems.appendChild(row);
+
+  removeButton.addEventListener('click', () => {
+    if (productItems.children.length > 1) {
+      row.remove();
+    } else {
+      productSelect.value = '';
+      quantity.value = '';
+    }
+  });
+
+  return row;
+}
+
+addButton.addEventListener('click', () => addProductRow());
+addProductRow();
+
 let activeFilter = 'todos';
 
 function renderProducts(){
   const term = search.value.trim().toLocaleLowerCase('es');
-  const visible = products.filter(p => (activeFilter === 'todos' || p.category === activeFilter) && `${p.name} ${p.description} ${p.label}`.toLocaleLowerCase('es').includes(term));
+  const visible = products.filter(p =>
+    (activeFilter === 'todos' || p.category === activeFilter) &&
+    `${p.name} ${p.description} ${p.label}`.toLocaleLowerCase('es').includes(term)
+  );
+
   grid.innerHTML = visible.map(p => `
     <article class="product-card">
-      <div class="product-image"><img src="${p.image}" alt="${p.name}" loading="lazy"><span class="product-category">${p.label}</span></div>
-      <div class="product-info"><h3>${p.name}</h3><p>${p.description}</p><div class="product-meta">${p.meta}</div><button type="button" data-product="${p.id}">Consultar este producto ↗</button></div>
+      <div class="product-image">
+        <img src="${p.image}" alt="${p.name}" loading="lazy">
+        <span class="product-category">${p.label}</span>
+      </div>
+      <div class="product-info">
+        <h3>${p.name}</h3>
+        <p>${p.description}</p>
+        <div class="product-meta">${p.meta}</div>
+        <button type="button" data-product="${p.id}">Consultar este producto ↗</button>
+      </div>
     </article>`).join('');
-  empty.hidden = visible.length > 0;
-  grid.querySelectorAll('[data-product]').forEach(button => button.addEventListener('click', () => {
-    select.value = button.dataset.product;
-    document.getElementById('consulta')?.scrollIntoView({behavior:'smooth'});
-    document.getElementById('customer-name').focus({preventScroll:true});
-  }));
-}
 
-products.forEach(p => {
-  const option = document.createElement('option');
-  option.value = p.id;
-  option.textContent = p.name;
-  select.appendChild(option);
-});
+  empty.hidden = visible.length > 0;
+
+  grid.querySelectorAll('[data-product]').forEach(button =>
+    button.addEventListener('click', () => {
+      const emptyRow = [...productItems.querySelectorAll('.product-row')]
+        .find(row => !row.querySelector('select').value);
+
+      const targetRow = emptyRow || addProductRow();
+      targetRow.querySelector('select').value = button.dataset.product;
+
+      document.getElementById('como-comprar')
+        ?.scrollIntoView({behavior:'smooth',block:'start'});
+
+      document.getElementById('customer-name').focus({preventScroll:true});
+    })
+  );
+}
 
 document.getElementById('filters').addEventListener('click', event => {
   const button = event.target.closest('[data-filter]');
   if (!button) return;
+
   activeFilter = button.dataset.filter;
-  document.querySelectorAll('.filter').forEach(el => el.classList.toggle('active', el === button));
+  document.querySelectorAll('.filter')
+    .forEach(el => el.classList.toggle('active', el === button));
+
   renderProducts();
 });
+
 search.addEventListener('input', renderProducts);
 document.getElementById('year').textContent = new Date().getFullYear();
 
 document.getElementById('inquiry-form').addEventListener('submit', event => {
   event.preventDefault();
+
   const name = document.getElementById('customer-name').value.trim();
-  const productId = select.value;
-  const product = products.find(p => p.id === productId);
-  const quantity = document.getElementById('quantity').value.trim();
   const extra = document.getElementById('extra').value.trim();
-  if (!name || !product || !quantity) return;
-  const message = `Hola, soy ${name}. Quiero consultar por: ${product.name}. Cantidad: ${quantity}.${extra ? ` Detalles: ${extra}.` : ''} ¿Me pueden confirmar precio vigente y disponibilidad? Gracias.`;
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+
+  const items = [...productItems.querySelectorAll('.product-row')].map(row => ({
+    product: products.find(p => p.id === row.querySelector('select').value),
+    quantity: row.querySelector('input').value.trim()
+  }));
+
+  if (!name || !items.length ||
+      items.some(item => !item.product || !item.quantity)) return;
+
+  const list = items.map(item =>
+    `• ${item.quantity} x ${item.product.name}`
+  ).join('\n');
+
+  const message = `Hola, soy ${name}. Quiero consultar por:\n${list}.${extra ? ` Detalles: ${extra}.` : ''} ¿Me pueden confirmar precio vigente y disponibilidad? Gracias.`;
+
+  window.open(
+    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+    '_blank',
+    'noopener'
+  );
 });
+
 renderProducts();
