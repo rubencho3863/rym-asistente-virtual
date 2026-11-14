@@ -299,9 +299,9 @@ if (matches.length) {
       item.quantity = quantity;
     }
   }
-}
-      }
-    }
+
+      
+    
   } else {
     const standalone = extractStandaloneQuantity(message, memory);
 
