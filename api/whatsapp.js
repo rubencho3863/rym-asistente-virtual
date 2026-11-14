@@ -269,28 +269,37 @@ function updateMemory(message, memory) {
   if (newName) {
     memory.name = newName;
   }
+const matches = findProducts(message);
 
-  const matches = findProducts(message);
+if (matches.length) {
+  for (const match of matches) {
+    const quantity = quantityBefore(text, match.start);
 
-  if (matches.length) {
-    for (const match of matches) {
-      const quantity = quantityBefore(text, match.start);
-
-      let item = memory.items.find(
-        entry => entry.product === match.product.name
+    // Rechazar pedidos de 1/4 kg (250 gramos).
+    if (isQuarterKilo(quantity) || Number(quantity) === 250) {
+      memory.items = memory.items.filter(
+        entry => entry.product !== match.product.name
       );
+      continue;
+    }
 
-      if (!item) {
-        item = {
-          product: match.product.name,
-          quantity: ""
-        };
+    let item = memory.items.find(
+      entry => entry.product === match.product.name
+    );
 
-        memory.items.push(item);
-      }
+    if (!item) {
+      item = {
+        product: match.product.name,
+        quantity: ""
+      };
+      memory.items.push(item);
+    }
 
-      if (quantity) {
-        item.quantity = quantity;
+    if (quantity) {
+      item.quantity = quantity;
+    }
+  }
+}
       }
     }
   } else {
