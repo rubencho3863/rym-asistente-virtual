@@ -329,9 +329,17 @@ if (matches.length) {
 function getReply(message, memory) {
   const text = normalize(message);
 
-  if (!text) {
-    return "¡Hola! 👋 Somos R y M Multirrubro. Contanos qué producto estás buscando.";
-  }
+  
+const cantidadNoPermitida =
+  /(?:1\s*\/\s*4|¼)\s*(?:kg|kilos?|kilogramos?)\b/i.test(message) ||
+  /\b250\s*(?:g|gr|grs|gramos?)\b/i.test(message) ||
+  /\b0[,.]25\s*(?:kg|kilos?)\b/i.test(message) ||
+  /\b(?:un\s+)?cuarto\s+(?:de\s+)?kilo\b/i.test(text);
+
+if (cantidadNoPermitida) {
+  return "¡Gracias por tu consulta! 😊 En R y M Multirrubro vendemos condimentos desde 1/2 kg (500 gramos). No realizamos ventas de 1/4 kg. ¿Querés consultar por 1/2 kg o 1 kg?";
+}
+
 
   if (/^(hola|buenas|buen dia|buenos dias|buenas tardes|buenas noches|menu|catalogo)$/.test(text)) {
     if (memory.items.length) {
