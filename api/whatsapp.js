@@ -26,7 +26,7 @@ const PRODUCTS = [
 ];
 
 function normalize(value) {
-  return String(value || "")
+  return String(value || "").toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^\p{L}\p{N}\s\/.,]/gu, " ")
