@@ -190,7 +190,28 @@ document.getElementById('inquiry-form').addEventListener('submit', event => {
     product: products.find(p => p.id === row.querySelector('select').value),
     quantity: row.querySelector('input').value.trim()
   }));
+const cantidadEnKg = texto => {
+  const q = texto.toLowerCase().replace(',', '.').trim().replace(/\s+/g, ' ');
 
+  if (/^(1\/4|¼)(\s*(de\s*)?(kg|kilo|kilos|kilogramo|kilogramos))?$/.test(q)) return 0.25;
+  if (/^(1\/2|½)(\s*(de\s*)?(kg|kilo|kilos|kilogramo|kilogramos))?$/.test(q)) return 0.5;
+
+  const match = q.match(/^(\d+(?:\.\d+)?)\s*(kg|k|kilo|kilos|kilogramo|kilogramos|g|gr|grs|gramo|gramos)$/);
+  if (!match) return null;
+
+  const valor = Number(match[1]);
+  return /^(g|gr|grs|gramo|gramos)$/.test(match[2]) ? valor / 1000 : valor;
+};
+
+const hayCantidadMenor = items.some(item => {
+  const kg = cantidadEnKg(item.quantity);
+  return kg !== null && kg < 0.5;
+});
+
+if (hayCantidadMenor) {
+  alert('No aceptamos pedidos menores a 1/2 kg por producto. 250 g, 1/4 kg y 0,25 kg no están permitidos. La cantidad mínima es 500 g.');
+  return;
+}
   if (!name || !items.length ||
       items.some(item => !item.product || !item.quantity)) return;
 
