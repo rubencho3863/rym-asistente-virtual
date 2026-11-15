@@ -331,7 +331,9 @@ function getReply(message, memory) {
 
   
 const cantidadNoPermitida =
-  /(?:1\s*\/\s*4|¼)\s*(?:kg|kilos?|kilogramos?)\b/i.test(message) ||
+   
+/(?:1\s*\/\s*4|¼)\s*(?:kg|kilos?|kilogramos?)\b/i.test(message) ||
+
   /\b250\s*(?:g|gr|grs|gramos?)\b/i.test(message) ||
   /\b0[,.]25\s*(?:kg|kilos?)\b/i.test(message) ||
   /\b(?:un\s+)?cuarto\s+(?:de\s+)?kilo\b/i.test(text);
