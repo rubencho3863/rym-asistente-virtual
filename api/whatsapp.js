@@ -320,9 +320,8 @@ if (matches.length) {
         pending[0].quantity = general[1];
       }
     }
-  }
-
-  return memory;
+    return memory;
+}
 
 
 // GENERAR RESPUESTA
