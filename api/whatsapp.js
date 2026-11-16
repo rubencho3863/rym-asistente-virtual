@@ -243,7 +243,7 @@ function extractStandaloneQuantity(message, memory) {
 
   if (isQuarterKilo(text)) return null;
 
-  if (/^(?:\d+(?:[.,]\d+)?|\d+\s*\/\s*\d+)\s*(?:kg|kgs|kilo|kilos|g|gr|grs|gramo|gramos)\.?$/.test(text)) {
+  if const pending = memory.items.filter(item => !item.quantity);
     const pending = memory.items.filter(item => !item.quantity);
 
     if (pending.lengthconst pending = memory.items.filter(item => !item.quantity); === 1) {
