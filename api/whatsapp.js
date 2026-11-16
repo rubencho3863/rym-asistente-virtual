@@ -279,13 +279,13 @@ function updateMemory(message, memory) {
     memory.name = newName;
   }
 const matches = findProducts(message);
-
+const seenInMessage = new Set();
 if (matches.length) {
   for (const match of matches) {
     const quantity = quantityBefore(text, match.start);
 
     // Rechazar pedidos de 1/4 kg (250 gramos).
-    if (isQuarterKilo(quantity) || Number(quantity) === 250) {
+const seenInMessage = new Set();    if (isQuarterKilo(quantity) || Number(quantity) === 250) {
       memory.items = memory.items.filter(
         entry => entry.product !== match.product.name
       );
