@@ -264,3 +264,10 @@ input:focus, select:focus, textarea:focus {
   border-color: #e5b74d;
   outline: 2px solid rgba(229,183,77,.20);
 }
+/* AJUSTE ENCABEZADO CELULAR R Y M */
+@media (max-width: 720px) {
+  .topbar {
+    height: 88px;
+    min-height: 88px;
+  }
+}
