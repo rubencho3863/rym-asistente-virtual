@@ -122,3 +122,55 @@
     padding: 10px 2px;
   }
 }
+/* IDENTIDAD VISUAL R Y M - AZUL Y AMARILLO */
+
+.topbar {
+  background: linear-gradient(135deg, #132d4a, #244d73);
+  color: #ffffff;
+  border-bottom: 4px solid #e5b74d;
+  box-shadow: 0 8px 24px rgba(19,45,74,.16);
+}
+
+.topbar a {
+  color: #ffffff;
+}
+
+.product-card {
+  background: #ffffff;
+  border: 1px solid rgba(36,77,115,.18);
+  border-top: 4px solid #e5b74d;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(19,45,74,.10);
+}
+
+.product-image {
+  background: #eef3f8;
+}
+
+.product-category {
+  display: inline-block;
+  background: #132d4a;
+  color: #ffffff;
+  border: 1px solid #e5b74d;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-weight: 700;
+}
+
+.product-info h3 {
+  color: #132d4a;
+}
+
+.product-info button {
+  background: #132d4a;
+  color: #ffffff;
+  border: 1px solid #e5b74d;
+  font-weight: 700;
+  transition: .2s ease;
+}
+
+.product-info button:hover {
+  background: #e5b74d;
+  color: #132d4a;
+}
+
