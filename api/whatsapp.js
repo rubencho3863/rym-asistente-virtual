@@ -305,8 +305,47 @@ if (isQuarterKilo(quantity) || Number(quantity) === 250) {
     }
 
     if (quantity) {
+  const parseQuantity = value => {
+    const match = String(value || "").trim().match(
+      /^(\d+(?:[.,]\d+)?|\d+\s*\/\s*\d+)\s*(kg|kgs|kilo|kilos|kilogramo|kilogramos|g|gr|grs|gramo|gramos|unidad|unidades|u|x)?\.?$/i
+    );
+
+    if (!match) return null;
+
+    const amountText = match[1].replace(/\s/g, "");
+    const amount = amountText.includes("/")
+      ? Number(amountText.split("/")[0]) / Number(amountText.split("/")[1])
+      : Number(amountText.replace(",", "."));
+
+    const unit = (match[2] || "").toLowerCase();
+    const isKg = ["kg", "kgs", "kilo", "kilos", "kilogramo", "kilogramos"].includes(unit);
+    const isWeight = isKg || ["g", "gr", "grs", "gramo", "gramos"].includes(unit);
+
+    return {
+      amount: isKg ? amount * 1000 : amount,
+      type: isWeight ? "weight" : "count"
+    };
+  };
+
+  if (seenInMessage.has(match.product.name)) {
+    const previous = parseQuantity(item.quantity);
+    const current = parseQuantity(quantity);
+
+    if (previous && current && previous.type === current.type) {
+      const total = Math.round((previous.amount + current.amount) * 1000) / 1000;
+
+      item.quantity = previous.type === "weight"
+        ? (total >= 1000 ? `${total / 1000} kg` : `${total} g`)
+        : String(total);
+    } else {
       item.quantity = quantity;
     }
+  } else {
+    item.quantity = quantity;
+  }
+}
+
+seenInMessage.add(match.product.name);
   }
 
       
