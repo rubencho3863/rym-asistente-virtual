@@ -285,7 +285,7 @@ if (matches.length) {
     const quantity = quantityBefore(text, match.start);
 
     // Rechazar pedidos de 1/4 kg (250 gramos).
-const seenInMessage = new Set();    if (isQuarterKilo(quantity) || Number(quantity) === 250) {
+if (isQuarterKilo(quantity) || Number(quantity) === 250) {
       memory.items = memory.items.filter(
         entry => entry.product !== match.product.name
       );
