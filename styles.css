@@ -217,3 +217,50 @@
   border: 2px solid #e5b74d !important;
   box-shadow: 0 8px 24px rgba(19,45,74,.25) !important;
 }
+/* MEJORA VISUAL AZUL Y DORADO R Y M */
+
+body {
+  background: linear-gradient(180deg, #f7f9fc, #edf3f9);
+}
+
+.topbar {
+  background: linear-gradient(120deg, #132d4a, #244d73);
+  color: #ffffff;
+  box-shadow: 0 8px 25px rgba(19,45,74,.18);
+}
+
+.topbar a {
+  color: #ffffff;
+}
+
+.brand-mark {
+  background: #132d4a;
+  border: 2px solid #e5b74d;
+  border-radius: 18px;
+  box-shadow: 0 5px 18px rgba(19,45,74,.20);
+}
+
+.product-card {
+  transition: transform .25s ease, box-shadow .25s ease;
+  border: 1px solid #dce6f0;
+}
+
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(19,45,74,.16);
+}
+
+.product-image {
+  background: linear-gradient(135deg, #edf4fb, #ffffff);
+  border-radius: 14px;
+}
+
+input, select, textarea {
+  border: 1px solid #cbd8e5;
+  border-radius: 10px;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #e5b74d;
+  outline: 2px solid rgba(229,183,77,.20);
+}
