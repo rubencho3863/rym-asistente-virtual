@@ -173,4 +173,40 @@
   background: #e5b74d;
   color: #132d4a;
 }
+/* AJUSTE LOGO R Y M */
+.brand-mark {
+  width: 76px;
+  height: 76px;
+  min-width: 76px;
+  flex: 0 0 76px;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  place-items: center;
+  box-sizing: border-box;
+  padding: 5px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 1;
+  font-size: 18px;
+  font-weight: 800;
+}
 
+.brand-mark > span {
+  display: block;
+  color: #e5b74d;
+  line-height: 1;
+}
+
+/* BOTON SUPERIOR */
+.topbar .button-light {
+  background: #ffffff;
+  color: #132d4a;
+  border: 1px solid #e5b74d;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.topbar .button-light:hover {
+  background: #e5b74d;
+  color: #132d4a;
+}
