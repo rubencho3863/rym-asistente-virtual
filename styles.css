@@ -210,3 +210,10 @@
   background: #e5b74d;
   color: #132d4a;
 }
+/* WHATSAPP - IDENTIDAD R Y M */
+.whatsapp-float {
+  background: #132d4a !important;
+  color: #e5b74d !important;
+  border: 2px solid #e5b74d !important;
+  box-shadow: 0 8px 24px rgba(19,45,74,.25) !important;
+}
