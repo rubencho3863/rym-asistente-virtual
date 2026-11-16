@@ -246,7 +246,7 @@ function extractStandaloneQuantity(message, memory) {
   if (/^(?:\d+(?:[.,]\d+)?|\d+\s*\/\s*\d+)\s*(?:kg|kgs|kilo|kilos|g|gr|grs|gramo|gramos)\.?$/.test(text)) {
     const pending = memory.items.filter(item => !item.quantity);
 
-    if (pending.length === 1) {
+    if (pending.lengthconst pending = memory.items.filter(item => !item.quantity); === 1) {
       return {
         product: pending[0],
         quantity: text
