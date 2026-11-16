@@ -238,15 +238,16 @@ function quantityBefore(text, position) {
 }
 
 
+
 function extractStandaloneQuantity(message, memory) {
   const text = normalize(message);
 
   if (isQuarterKilo(text)) return null;
 
-  if const pending = memory.items.filter(item => !item.quantity);
+  if (/^(?:\d+(?:[.,]\d+)?|\d+\s*\/\s*\d+)\s*(?:kg|kgs|kilo|kilos|g|gr|grs|gramo|gramos)\.?$/.test(text)) {
     const pending = memory.items.filter(item => !item.quantity);
 
-    if (pending.lengthconst pending = memory.items.filter(item => !item.quantity); === 1) {
+    if (pending.length === 1) {
       return {
         product: pending[0],
         quantity: text
@@ -256,6 +257,7 @@ function extractStandaloneQuantity(message, memory) {
 
   return null;
 }
+
 
 // ACTUALIZAR PEDIDO
 function updateMemory(message, memory) {
