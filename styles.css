@@ -97,4 +97,28 @@
   .product-image {
     height: 135px;
   }
+}/* ===== AJUSTE FINO DE BOTONES R Y M ===== */
+
+@media (max-width: 720px) {
+  .product-info button {
+    white-space: nowrap;
+    font-size: 10px;
+    letter-spacing: -.25px;
+    padding: 10px 4px;
+  }
+
+  .whatsapp-float {
+    width: 44px;
+    height: 44px;
+    right: 12px;
+    bottom: 12px;
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 390px) {
+  .product-info button {
+    font-size: 9px;
+    padding: 10px 2px;
+  }
 }
