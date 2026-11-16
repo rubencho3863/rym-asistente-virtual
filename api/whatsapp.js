@@ -12,7 +12,11 @@ const PRODUCTS = [
   { name: "Adobo para pizza", words: ["adobo para pizza", "adobo pizza"] },
     { name: "Pimentón", words: ["pimenton"] },
   { name: "Chimichurri", words: ["chimichurri"] },
-  { name: "Espejos con y sin LED", words: ["espejo led", "espejos led", "espejo", "espejos"] },
+  
+  { name: "Espejos con y sin LED", words: ["espejos con y sin led", "espejo con y sin led", "espejos con led", "espejo con led", "espejos sin led", "espejo sin led"] },
+  { name: "Modelos de espejos LED", words: ["modelos de espejos led", "modelos de espejo led"] },
+  { name: "Espejos LED - otros modelos", words: ["espejos led otros modelos", "espejo led otros modelos", "otros modelos de espejos led", "otros modelos de espejo led"] },
+
   { name: "Mini aire portátil", words: ["mini aire portatil", "mini aire"] },
   { name: "Mini aire para auto", words: ["mini aire para auto", "aire para auto"] },
   { name: "Ventilador de pie 18 pulgadas", words: ["ventilador de pie", "ventiladores", "ventilador"] },
