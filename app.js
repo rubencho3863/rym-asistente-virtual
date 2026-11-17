@@ -10,7 +10,8 @@ const products = [
 
 {id:'pimenton',name:'Pimentón',category:'condimentos',label:'Condimentos',image:'https://images.pexels.com/photos/6104650/pexels-photo-6104650.jpeg?auto=compress&dpr=1&h=750&w=1260',description:'Condimento para tus preparaciones.',meta:'Por kilo o ½ kg'},
 
-{id:'chimichurri',name:'Chimichurri',category:'condimentos',label:'Condimentos',image:'assets/chimichurri-real.jpg',description:'Mezcla de hierbas, ajo y especias para condimentar.',meta:'Por kilo o ½ kg'},
+  
+{id:'chimichurri',name:'Chimichurri',category:'condimentos',label:'Condimentos',image:'assets/image-1794920426259.jpg',description:'Mezcla de hierbas, ajo y especias para condimentar.',meta:'Por kilo o ½ kg'},
 
   {id:'espejos',name:'Espejos con y sin LED',category:'espejos',label:'Espejos',image:'assets/espejo-led-vertical.jpg',description:'Diferentes modelos. Se realizan solamente por encargo.',meta:'Por encargo · seña según artículo'},
   {id:'espejos-varios',name:'Modelos de espejos LED',category:'espejos',label:'Espejos',image:'assets/espejos-led-varios.jpg',description:'Consultá por tamaños, colores y modelos disponibles.',meta:'Por encargo'},
