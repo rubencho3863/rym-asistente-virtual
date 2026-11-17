@@ -6,7 +6,7 @@ const products = [
   {id:'provenzal',name:'Provenzal',category:'condimentos',label:'Condimentos',image:'assets/provenzal.jpg',description:'Mezcla de perejil y ajo chino.',meta:'Por kilo o ½ kg'},
   {id:'oregano',name:'Orégano',category:'condimentos',label:'Condimentos',image:'assets/oregano.jpg',description:'Un clásico para la cocina.',meta:'Por kilo o ½ kg'},
   {id:'adobo',name:'Adobo para pizza',category:'condimentos',label:'Condimentos',image:'assets/adobo-para-pizza.jpg',description:'Mezcla para dar sabor a tus pizzas.',meta:'Por kilo o ½ kg'},image:'https://images.pexels.com/photos/6104650/pexels-photo-6104650.jpeg?auto=compress&dpr=1&h=750&w=1260'
-  {
+  
 {id:'pimenton',name:'Pimentón',category:'condimentos',label:'Condimentos',image:'https://images.pexels.com/photos/6104650/pexels-photo-6104650.jpeg?auto=compress&dpr=1&h=750&w=1260',description:'Condimento para tus preparaciones.',meta:'Por kilo o ½ kg'},
 {id:'chimichurri',name:'Chimichurri',category:'condimentos',label:'Condimentos',image:'https://images.pexels.com/photos/8329339/pexels-photo-8329339.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',description:'Mezcla de hierbas y especias para condimentar.',meta:'Por kilo o ½ kg'},
 
