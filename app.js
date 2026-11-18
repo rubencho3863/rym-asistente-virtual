@@ -235,3 +235,94 @@ if (hayCantidadMenor) {
 });
 
 renderProducts();
+
+async function syncSupabaseCatalog() {
+  const url = localStorage.getItem('rym_supabase_url');
+  const key = localStorage.getItem('rym_supabase_publishable');
+
+  if (!url || !key || !window.supabase?.createClient) return;
+
+  try {
+    const client = window.supabase.createClient(url, key, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      }
+    });
+
+    const [catResult, prodResult] = await Promise.all([
+      client.from('categories')
+        .select('id,name,is_active')
+        .eq('is_active', true),
+
+      client.from('products')
+        .select('id,category_id,name,description,image_url,sort_order,is_active')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+    ]);
+
+    if (catResult.error) throw catResult.error;
+    if (prodResult.error) throw prodResult.error;
+
+    const categoryMap = new Map(
+      (catResult.data || []).map(c => [c.id, c.name])
+    );
+
+    const merged = [...products];
+
+    const normalize = value =>
+      String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim()
+        .toLowerCase();
+
+    (prodResult.data || []).forEach(item => {
+      const categoryName = categoryMap.get(item.category_id);
+      if (!categoryName) return;
+
+      const index = merged.findIndex(
+        p => normalize(p.name) === normalize(item.name)
+      );
+
+      const previous = index >= 0 ? merged[index] : null;
+      const categoryKey = normalize(categoryName);
+
+      const categorySlug = ({
+        'condimentos': 'condimentos',
+        'espejos': 'espejos',
+        'hogar y varios': 'hogar',
+        'belleza y cuidado': 'belleza',
+        'accesorios': 'tecnologia'
+      })[categoryKey] || categoryKey.replace(/\s+/g, '-');
+
+      const updated = {
+        ...(previous || {}),
+        id: previous ? previous.id : String(item.id),
+        name: item.name,
+        category: categorySlug,
+        label: categoryName,
+        image: item.image_url || (previous && previous.image) || '',
+        description: item.description || (previous && previous.description) || '',
+        meta: previous && previous.meta
+          ? previous.meta
+          : (categorySlug === 'condimentos' ? 'Por kilo o ½ kg' : '')
+      };
+
+      if (index >= 0) {
+        merged[index] = updated;
+      } else {
+        merged.push(updated);
+      }
+    });
+
+    products.splice(0, products.length, ...merged);
+    renderProducts();
+
+  } catch (error) {
+    console.error('Error al sincronizar catálogo:', error);
+  }
+}
+
+syncSupabaseCatalog();
