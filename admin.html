@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#132d4a">
+<title>R y M | Administración</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--n:#132d4a;--b:#244d73;--g:#e5b74d;--ink:#182b3e;--muted:#68798b;--line:#dce4ec;--bg:#f3f6fa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+header{background:linear-gradient(120deg,var(--n),var(--b));color:white;border-bottom:4px solid var(--g);padding:15px 18px;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;gap:12px;align-items:center}.mark{width:46px;height:46px;border:2px solid var(--g);border-radius:12px;display:grid;place-items:center;font-weight:bold}.brand strong{display:block}.brand small{display:block;color:#e7d49e;font-size:10px;letter-spacing:2px;margin-top:4px}
+main{max-width:980px;margin:22px auto;padding:0 14px 36px}.panel{background:white;border:1px solid var(--line);border-radius:15px;padding:20px;margin-bottom:16px;box-shadow:0 7px 22px #132d4a10}
+h1,h2{color:var(--n);margin:0 0 12px}h1{font-size:24px}h2{font-size:19px}.muted{font-size:13px;color:var(--muted);line-height:1.5}
+label{display:block;font-size:13px;font-weight:bold;margin:12px 0 6px}input,textarea,select{width:100%;padding:11px;border:1px solid #cbd7e2;border-radius:8px;font:inherit;color:var(--ink);background:#fff}textarea{min-height:76px}
+button{border:0;border-radius:8px;padding:10px 14px;font-weight:bold;cursor:pointer}.primary{background:var(--n);color:white;border:1px solid var(--g)}.secondary{background:#edf2f7;color:var(--n)}.danger{background:#fff0f0;color:#a83232}.small{font-size:12px;padding:8px 10px}button:disabled{opacity:.6}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.row .fit{flex:0 0 auto}
+.tabs{display:flex;gap:8px;margin:15px 0}.tabs button{flex:1;background:#e8eef5;color:var(--n)}.tabs .active{background:var(--n);color:white;border-bottom:3px solid var(--g)}
+.notice{padding:11px 13px;border-radius:8px;background:#edf4fb;color:var(--n);font-size:13px;line-height:1.4;margin-top:12px}.error{background:#fff0f0;color:#a83232}.success{background:#eaf6ee;color:#237447}.hidden{display:none!important}
+.item{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:11px;margin:9px 0;flex-wrap:wrap}.thumb{width:60px;height:60px;object-fit:cover;border-radius:8px;background:#edf2f7;flex:0 0 60px}.info{flex:1;min-width:130px}.info strong{display:block;color:var(--n);margin-bottom:5px}.info small{display:block;color:var(--muted);font-size:12px}.actions{display:flex;gap:6px;flex-wrap:wrap}.status{display:inline-block;margin-top:5px;padding:3px 8px;border-radius:20px;background:#e8f5ed;color:#237447;font-size:11px}.off{background:#f0f1f3;color:#66717d}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.wide{grid-column:1/-1}.check{display:flex;align-items:center;gap:8px;margin-top:12px}.check input{width:auto}.check label{margin:0}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+@media(max-width:620px){main{margin:14px auto;padding:0 10px 28px}.panel{padding:15px}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.actions{width:100%;padding-left:72px}.row .fit{flex:1}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="mark">R&M</div><div><strong>R y M Multirrubro</strong><small>ADMINISTRACIÓN PRIVADA</small></div></div><button id="logout" class="secondary hidden" type="button">Salir</button></header>
+<main>
+<section id="config" class="panel hidden">
+<h1>Conectar Supabase</h1><p class="muted">Ingresá la Project URL y la Publishable Key que guardaste en Notas. Se guardan en este navegador.</p>
+<label for="url">Project URL</label><input id="url" type="url" placeholder="https://tu-proyecto.supabase.co">
+<label for="key">Publishable Key</label><input id="key" type="password" placeholder="sb_publishable_..." autocomplete="off">
+<button id="saveConfig" class="primary" style="width:100%;margin-top:14px">Guardar conexión</button><div id="configMsg" class="notice hidden"></div>
+<p class="muted">No ingreses Secret Key ni service_role.</p>
+</section>
+<section id="login" class="panel hidden">
+<h1>Acceso de administrador</h1><p class="muted">Usá el correo y la contraseña del usuario registrado en Supabase Authentication.</p>
+<form id="loginForm"><label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="username" required><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" required><button class="primary" style="width:100%;margin-top:14px">Ingresar</button></form><div id="loginMsg" class="notice hidden"></div>
+</section>
+<section id="admin" class="hidden">
+<div class="panel"><h1>Panel de administración</h1><p class="muted">Gestioná productos, imágenes y categorías.</p>
+<div class="tabs"><button id="tabProducts" class="active" type="button">Productos</button><button id="tabCategories" type="button">Categorías</button></div>
+<div id="productsView"><div class="row"><div><h2>Productos</h2><p class="muted">Agregar, editar, ocultar o eliminar.</p></div><button id="addProduct" class="primary fit" type="button">+ Producto</button></div><div id="productsList"></div><div id="noProducts" class="notice hidden">Todavía no hay productos.</div></div>
+<div id="categoriesView" class="hidden"><div class="row"><div><h2>Categorías</h2><p class="muted">Crear y organizar categorías.</p></div><button id="addCategory" class="primary fit" type="button">+ Categoría</button></div><div id="categoriesList"></div><div id="noCategories" class="notice hidden">Todavía no hay categorías.</div></div>
+<div id="globalMsg" class="notice hidden"></div></div>
+<section id="productPanel" class="panel hidden"><h2 id="productTitle">Nuevo producto</h2>
+<form id="productForm"><input id="productId" type="hidden"><div class="grid">
+<div class="wide"><label for="pName">Nombre</label><input id="pName" maxlength="120" required></div>
+<div><label for="pCategory">Categoría</label><select id="pCategory" required></select></div>
+<div><label for="pOrder">Orden</label><input id="pOrder" type="number" value="0"></div>
+<div class="wide"><label for="pDescription">Descripción</label><textarea id="pDescription"></textarea></div>
+<div class="wide"><label for="pImage">Fotografía JPG, PNG o WEBP (máximo 50 MB)</label><input id="pImage" type="file" accept="image/jpeg,image/png,image/webp"></div>
+<div class="wide check"><input id="pActive" type="checkbox" checked><label for="pActive">Producto activo y visible</label></div>
+</div><div class="row" style="margin-top:15px"><button class="primary">Guardar producto</button><button id="cancelProduct" class="secondary" type="button">Cancelar</button></div></form><div id="productMsg" class="notice hidden"></div></section>
+<section id="categoryPanel" class="panel hidden"><h2 id="categoryTitle">Nueva categoría</h2>
+<form id="categoryForm"><input id="categoryId" type="hidden"><label for="cName">Nombre</label><input id="cName" maxlength="100" required><label for="cDescription">Descripción</label><textarea id="cDescription"></textarea><label for="cOrder">Orden</label><input id="cOrder" type="number" value="0"><div class="check"><input id="cActive" type="checkbox" checked><label for="cActive">Categoría activa</label></div><div class="row" style="margin-top:15px"><button class="primary">Guardar categoría</button><button id="cancelCategory" class="secondary" type="button">Cancelar</button></div></form><div id="categoryMsg" class="notice hidden"></div></section>
+</section>
+</main><footer>R y M Multirrubro · Panel privado</footer>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id), URL_KEY="rym_supabase_url", PUB_KEY="rym_supabase_publishable";
+let db=null,user=null,products=[],categories=[];
+function msg(el,text,type){el.textContent=text;el.className="notice"+(type?" "+type:"");el.classList.remove("hidden")}
+function hide(el){el.classList.add("hidden");el.textContent=""}
+function screen(which){["config","login","admin"].forEach(id=>$(id).classList.add("hidden"));$(which).classList.remove("hidden")}
+function connect(url,key){if(!window.supabase?.createClient)throw Error("No se pudo cargar Supabase. Revisá la conexión a internet.");db=window.supabase.createClient(url,key)}
+async function checkAdmin(u){const r=await db.from("admin_users").select("user_id").eq("user_id",u.id).maybeSingle();if(r.error)throw r.error;if(!r.data)throw Error("Este usuario no está autorizado como administrador de R y M.");user=u}
+async function boot(){
+ const url=localStorage.getItem(URL_KEY),key=localStorage.getItem(PUB_KEY);if(!url||!key){screen("config");return}
+ try{connect(url,key);const r=await db.auth.getSession();if(r.error)throw r.error;if(r.data.session){await checkAdmin(r.data.session.user);await enterAdmin()}else screen("login")}
+ catch(e){screen("config");msg($("configMsg"),e.message,"error")}
+}
+$("saveConfig").onclick=async()=>{
+ const url=$("url").value.trim().replace(/\/+$/,""),key=$("key").value.trim();hide($("configMsg"));
+ if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||!key){msg($("configMsg"),"Revisá la URL y la Publishable Key. No uses una clave secreta.","error");return}
+ try{connect(url,key);localStorage.setItem(URL_KEY,url);localStorage.setItem(PUB_KEY,key);const r=await db.auth.getSession();if(r.error)throw r.error;screen("login")}
+ catch(e){msg($("configMsg"),e.message,"error")}
+};
+$("loginForm").onsubmit=async e=>{
+ e.preventDefault();const b=e.target.querySelector("button");b.disabled=true;hide($("loginMsg"));
+ try{const r=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(r.error)throw r.error;await checkAdmin(r.data.user);await enterAdmin()}
+ catch(err){await db.auth.signOut();msg($("loginMsg"),err.message,"error")}finally{b.disabled=false}
+};
+$("logout").onclick=async()=>{await db.auth.signOut();user=null;screen("login");$("logout").classList.add("hidden")};
+async function enterAdmin(){screen("admin");$("logout").classList.remove("hidden");await load()}
+$("tabProducts").onclick=()=>{tab("products")};$("tabCategories").onclick=()=>{tab("categories")};
+function tab(which){$("productsView").classList.toggle("hidden",which!=="products");$("categoriesView").classList.toggle("hidden",which!=="categories");$("tabProducts").classList.toggle("active",which==="products");$("tabCategories").classList.toggle("active",which==="categories");$("productPanel").classList.add("hidden");$("categoryPanel").classList.add("hidden")}
+async function load(){
+ hide($("globalMsg"));
+ try{
+ const [c,p]=await Promise.all([
+ db.from("categories").select("id,name,description,sort_order,is_active,created_at,updated_at").order("sort_order"),
+ db.from("products").select("id,category_id,name,description,image_url,sort_order,is_active,created_at,updated_at").order("sort_order")
+ ]);
+ if(c.error)throw c.error;if(p.error)throw p.error;categories=c.data||[];products=p.data||[];drawCategories();drawProducts();fillCategories()
+ }catch(e){msg($("globalMsg"),"No se pudieron leer las tablas: "+e.message,"error")}
+}
+function drawProducts(){
+ const box=$("productsList");box.replaceChildren();$("noProducts").classList.toggle("hidden",products.length>0);
+ products.forEach(p=>{
+ const item=document.createElement("div");item.className="item";
+ if(p.image_url){const im=document.createElement("img");im.className="thumb";im.src=p.image_url;im.alt=p.name;item.append(im)}else{const im=document.createElement("div");im.className="thumb";im.textContent="R&M";im.style.display="grid";im.style.placeItems="center";item.append(im)}
+ const info=document.createElement("div");info.className="info";const name=document.createElement("strong");name.textContent=p.name;const cat=categories.find(c=>c.id===p.category_id);const detail=document.createElement("small");detail.textContent=(cat?.name||"Sin categoría")+" · Orden "+p.sort_order;const st=document.createElement("span");st.className="status"+(p.is_active?"":" off");st.textContent=p.is_active?"Activo":"Oculto";info.append(name,detail,st);item.append(info);
+ const actions=document.createElement("div");actions.className="actions";
+ actions.append(action("Editar","secondary",()=>editProduct(p)),action(p.is_active?"Ocultar":"Activar","secondary",()=>toggleProduct(p)),action("Eliminar","danger",()=>deleteProduct(p)));item.append(actions);box.append(item)
+ })
+}
+function drawCategories(){
+ const box=$("categoriesList");box.replaceChildren();$("noCategories").classList.toggle("hidden",categories.length>0);
+ categories.forEach(c=>{
+ const item=document.createElement("div");item.className="item";const info=document.createElement("div");info.className="info";const name=document.createElement("strong");name.textContent=c.name;const detail=document.createElement("small");detail.textContent=(c.description||"Sin descripción")+" · Orden "+c.sort_order;const st=document.createElement("span");st.className="status"+(c.is_active?"":" off");st.textContent=c.is_active?"Activa":"Inactiva";info.append(name,detail,st);item.append(info);
+ const actions=document.createElement("div");actions.className="actions";actions.append(action("Editar","secondary",()=>editCategory(c)),action(c.is_active?"Desactivar":"Activar","secondary",()=>toggleCategory(c)),action("Eliminar","danger",()=>deleteCategory(c)));item.append(actions);box.append(item)
+ })
+}
+function action(text,cls,fn){const b=document.createElement("button");b.type="button";b.className=cls+" small";b.textContent=text;b.onclick=fn;return b}
+function fillCategories(){const s=$("pCategory");s.replaceChildren();const o=document.createElement("option");o.value="";o.textContent="Elegí una categoría";s.append(o);categories.filter(c=>c.is_active).forEach(c=>{const x=document.createElement("option");x.value=c.id;x.textContent=c.name;s.append(x)})}
+function openProduct(){ $("productForm").reset();$("productId").value="";$("pOrder").value="0";$("pActive").checked=true;$("productTitle").textContent="Nuevo producto";hide($("productMsg"));fillCategories();$("productPanel").classList.remove("hidden");$("productPanel").scrollIntoView({behavior:"smooth"})}
+function editProduct(p){openProduct();$("productId").value=p.id;$("pName").value=p.name;$("pCategory").value=p.category_id;$("pDescription").value=p.description||"";$("pOrder").value=p.sort_order||0;$("pActive").checked=!!p.is_active;$("productTitle").textContent="Editar producto"}
+$("addProduct").onclick=openProduct;$("cancelProduct").onclick=()=>$("productPanel").classList.add("hidden");
+$("productForm").onsubmit=async e=>{
+ e.preventDefault();const b=e.target.querySelector('button[type="submit"]');b.disabled=true;hide($("productMsg"));
+ try{
+ const id=$("productId").value,category_id=$("pCategory").value,name=$("pName").value.trim();if(!name||!category_id)throw Error("Completá el nombre y la categoría.");
+ const payload={name,category_id,description:$("pDescription").value.trim(),sort_order:Number($("pOrder").value)||0,is_active:$("pActive").checked,updated_at:new Date().toISOString()};
+ const file=$("pImage").files[0];
+ if(file){
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw Error("La imagen debe ser JPG, PNG o WEBP.");
+ if(file.size>50*1024*1024)throw Error("La imagen supera el límite de 50 MB.");
+ const safe=file.name.toLowerCase().replace(/[^a-z0-9._-]/g,"-"),path=user.id+"/"+Date.now()+"-"+safe;
+ const up=await db.storage.from("product-images").upload(path,file,{contentType:file.type,upsert:false});if(up.error)throw up.error;
+ payload.image_url=db.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+ }
+ const r=id?await db.from("products").update(payload).eq("id",id):await db.from("products").insert(payload);if(r.error)throw r.error;
+ $("productPanel").classList.add("hidden");await load();msg($("globalMsg"),"Producto guardado correctamente.","success")
+ }catch(err){msg($("productMsg"),err.message,"error")}finally{b.disabled=false}
+};
+async function toggleProduct(p){const r=await db.from("products").update({is_active:!p.is_active,updated_at:new Date().toISOString()}).eq("id",p.id);if(r.error){msg($("globalMsg"),r.error.message,"error");return}await load()}
+async function deleteProduct(p){if(!confirm('¿Eliminar "'+p.name+'"? No se puede deshacer.'))return;const r=await db.from("products").delete().eq("id",p.id);if(r.error){msg($("globalMsg"),r.error.message,"error");return}await load();msg($("globalMsg"),"Producto eliminado.","success")}
+function openCategory(){ $("categoryForm").reset();$("categoryId").value="";$("cOrder").value="0";$("cActive").checked=true;$("categoryTitle").textContent="Nueva categoría";hide($("categoryMsg"));$("categoryPanel").classList.remove("hidden");$("categoryPanel").scrollIntoView({behavior:"smooth"})}
+function editCategory(c){openCategory();$("categoryId").value=c.id;$("cName").value=c.name;$("cDescription").value=c.description||"";$("cOrder").value=c.sort_order||0;$("cActive").checked=!!c.is_active;$("categoryTitle").textContent="Editar categoría"}
+$("addCategory").onclick=openCategory;$("cancelCategory").onclick=()=>$("categoryPanel").classList.add("hidden");
+$("categoryForm").onsubmit=async e=>{
+ e.preventDefault();const b=e.target.querySelector('button[type="submit"]');b.disabled=true;hide($("categoryMsg"));
+ try{const id=$("categoryId").value,payload={name:$("cName").value.trim(),description:$("cDescription").value.trim(),sort_order:Number($("cOrder").value)||0,is_active:$("cActive").checked,updated_at:new Date().toISOString()};const r=id?await db.from("categories").update(payload).eq("id",id):await db.from("categories").insert(payload);if(r.error)throw r.error;$("categoryPanel").classList.add("hidden");await load();msg($("globalMsg"),"Categoría guardada correctamente.","success")}
+ catch(err){msg($("categoryMsg"),err.message,"error")}finally{b.disabled=false}
+};
+async function toggleCategory(c){const r=await db.from("categories").update({is_active:!c.is_active,updated_at:new Date().toISOString()}).eq("id",c.id);if(r.error){msg($("globalMsg"),r.error.message,"error");return}await load()}
+async function deleteCategory(c){if(!confirm('¿Eliminar "'+c.name+'"? Si tiene productos asociados, Supabase puede impedirlo.'))return;const r=await db.from("categories").delete().eq("id",c.id);if(r.error){msg($("globalMsg"),r.error.message,"error");return}await load();msg($("globalMsg"),"Categoría eliminada.","success")}
+boot();
+})();
+</script>
+</body></html>
