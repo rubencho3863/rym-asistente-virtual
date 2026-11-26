@@ -130,7 +130,22 @@ addButton.addEventListener('click', (event) => {
   addProductRow();
 });
 addProductRow();
+const newOrderButton = document.createElement('button');
+newOrderButton.type = 'button';
+newOrderButton.textContent = '↻ Nuevo pedido';
+newOrderButton.className = 'button button-full';
+newOrderButton.style.background = '#e5b74d';
+newOrderButton.style.color = '#132d4a';
+newOrderButton.style.marginTop = '10px';
 
+document.querySelector('#inquiry-form button[type="submit"]').after(newOrderButton);
+
+newOrderButton.addEventListener('click', () => {
+  document.getElementById('inquiry-form').reset();
+  productItems.innerHTML = '';
+  addProductRow('');
+  document.getElementById('customer-name').focus();
+});
 let activeFilter = 'todos';
 
 function renderProducts(){
