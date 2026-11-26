@@ -252,8 +252,8 @@ if (hayCantidadMenor) {
 renderProducts();
 
 async function syncSupabaseCatalog() {
-  const url = localStorage.getItem('rym_supabase_url');
-  const key = localStorage.getItem('rym_supabase_publishable');
+  const url = 'https://bocsuaqcincmhpdy ozgf.supabase.co'.replace(' ', '');
+const key = 'PEGAR_CLAVE_PUBLICA_AQUI';
 
   if (!url || !key || !window.supabase?.createClient) return;
 
