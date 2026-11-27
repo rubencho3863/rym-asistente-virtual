@@ -253,8 +253,7 @@ renderProducts();
 
 async function syncSupabaseCatalog() {
   const url = 'https://bocsuaqcincmhpdy ozgf.supabase.co'.replace(' ', '');
-const key = 'PEGAR_CLAVE_PUBLICA_AQUI';
-
+const key = sb_publishable_k7B2wM-g01jjG5HgOZFgbw_xm5vLy8_
   if (!url || !key || !window.supabase?.createClient) return;
 
   try {
